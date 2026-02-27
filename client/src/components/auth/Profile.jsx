@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { FiEdit2, FiSave, FiX, FiPhone, FiMail, FiUser, FiCalendar } from 'react-icons/fi';
 import api from '../../services/api';
@@ -13,6 +13,14 @@ const Profile = () => {
     bio: user?.bio || ''
   });
 
+  useEffect(() => {
+    setFormData({
+      name: user?.name || '',
+      phoneNumber: user?.phoneNumber || '',
+      bio: user?.bio || ''
+    });
+  }, [user]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -20,9 +28,13 @@ const Profile = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
+      if (!formData.name.trim()) {
+        toast.error('Name is required');
+        return;
+      }
+
       const response = await api.put('/users/profile', formData);
       updateUser(response.data);
       setIsEditing(false);

@@ -20,16 +20,26 @@ router.get('/profile', ensureAuth, async (req, res) => {
 router.put('/profile', ensureAuth, async (req, res) => {
   try {
     const { name, phoneNumber, bio } = req.body;
-    
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { 
-        name: name || req.user.name,
-        phoneNumber: phoneNumber || req.user.phoneNumber,
-        bio: bio || req.user.bio
-      },
-      { new: true }
-    ).select('-__v');
+
+    const updates = {};
+    if (typeof name === 'string') {
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        return res.status(400).json({ error: 'Name is required' });
+      }
+      updates.name = trimmedName;
+    }
+    if (typeof phoneNumber === 'string') {
+      updates.phoneNumber = phoneNumber.trim();
+    }
+    if (typeof bio === 'string') {
+      updates.bio = bio.trim();
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id, updates, {
+      new: true,
+      runValidators: true
+    }).select('-__v');
 
     res.json(user);
   } catch (error) {

@@ -155,7 +155,7 @@ const LandingPage = () => {
             Join thousands of teams who use ThinkCanvas for their collaborative needs
           </p>
           <Link
-            to="/login"
+            to="/signup"
             className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-blue-700 hover:to-purple-700 transition transform hover:scale-105"
           >
             Get Started Now - It's Free

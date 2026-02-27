@@ -18,6 +18,12 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
+  password: {
+    type: String,
+    minlength: 6,
+    select: false,
+    default: null
+  },
   avatar: {
     type: String,
     default: ''
@@ -45,7 +51,6 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Update lastActive on save
 userSchema.pre('save', function(next) {
   this.lastActive = Date.now();
   next();

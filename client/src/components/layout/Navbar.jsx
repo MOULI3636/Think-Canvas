@@ -2,19 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { 
-  FiUser, 
-  FiLogOut, 
-  FiMoon, 
-  FiSun, 
+import {
+  FiUser,
+  FiLogOut,
+  FiMoon,
+  FiSun,
   FiMenu,
-  FiX,
-  FiSettings,
-  FiHelpCircle
+  FiX
 } from 'react-icons/fi';
 
 const Navbar = () => {
-  const { user, logout, googleLogin, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -35,7 +33,6 @@ const Navbar = () => {
     <nav className="bg-white dark:bg-gray-900 shadow-lg fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -44,15 +41,14 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-4">
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
               aria-label="Toggle dark mode"
             >
-              {darkMode ? 
-                <FiSun className="text-yellow-400 text-xl" /> : 
+              {darkMode ?
+                <FiSun className="text-yellow-400 text-xl" /> :
                 <FiMoon className="text-gray-600 dark:text-gray-400 text-xl" />
               }
             </button>
@@ -88,7 +84,7 @@ const Navbar = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="p-2">
                       <Link
                         to="/profile"
@@ -98,7 +94,7 @@ const Navbar = () => {
                         <FiUser className="text-lg" />
                         <span>Profile</span>
                       </Link>
-                      
+
                       <button
                         onClick={() => {
                           setShowProfileMenu(false);
@@ -114,21 +110,23 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <button
-                onClick={googleLogin}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition transform hover:scale-105"
-              >
-                <img
-                  src="https://www.google.com/favicon.ico"
-                  alt="Google"
-                  className="w-5 h-5"
-                />
-                <span>Sign in with Google</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/login"
+                  className="px-4 py-2 rounded-lg border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-800 transition"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
 
-          {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
             <button
               onClick={toggleDarkMode}
@@ -136,7 +134,7 @@ const Navbar = () => {
             >
               {darkMode ? <FiSun className="text-yellow-400" /> : <FiMoon />}
             </button>
-            
+
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -147,7 +145,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white dark:bg-gray-900 border-t dark:border-gray-700">
           <div className="px-4 pt-2 pb-3 space-y-2">
@@ -164,7 +161,7 @@ const Navbar = () => {
                     <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
                   </div>
                 </div>
-                
+
                 <Link
                   to="/profile"
                   className="flex items-center space-x-2 px-3 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
@@ -173,7 +170,7 @@ const Navbar = () => {
                   <FiUser />
                   <span>Profile</span>
                 </Link>
-                
+
                 <button
                   onClick={() => {
                     setIsOpen(false);
@@ -186,16 +183,22 @@ const Navbar = () => {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  googleLogin();
-                }}
-                className="flex items-center space-x-2 w-full px-3 py-2 bg-blue-600 text-white rounded-lg"
-              >
-                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
-                <span>Sign in with Google</span>
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="px-3 py-2 text-center rounded-lg border border-blue-600 text-blue-600"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setIsOpen(false)}
+                  className="px-3 py-2 text-center rounded-lg bg-blue-600 text-white"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
         </div>

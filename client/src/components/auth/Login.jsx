@@ -1,73 +1,119 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FcGoogle } from 'react-icons/fc';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiMail, FiLock } from 'react-icons/fi';
 
 const Login = () => {
-  const { googleLogin, isAuthenticated } = useAuth();
+  const { googleLogin, loginWithEmail, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const authFailed = useMemo(() => searchParams.get('error') === 'auth_failed', [searchParams]);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
-    }
+    if (isAuthenticated) navigate('/');
   }, [isAuthenticated, navigate]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSubmitting(true);
+
+    try {
+      await loginWithEmail({ email, password });
+      navigate('/');
+    } catch (submitError) {
+      setError(submitError.response?.data?.error || 'Unable to login. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
+    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(circle_at_top_left,_#0f172a_0%,_#111827_40%,_#030712_100%)] px-4">
+      <div className="absolute inset-0 opacity-30 [background:linear-gradient(110deg,rgba(56,189,248,0.2),transparent_28%,transparent_72%,rgba(34,197,94,0.2))]" />
+
+      <div className="relative w-full max-w-md">
+        <div className="rounded-3xl border border-white/10 bg-white/95 dark:bg-gray-900/90 shadow-2xl backdrop-blur-xl p-7 sm:p-8">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+            className="flex items-center text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white mb-6"
           >
-            <FiArrowLeft className="mr-2" />
-            Back to Home
+            <FiArrowLeft className="mr-2" /> Back to Home
           </button>
-          
-          <div className="text-center">
-            <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">
-              Welcome Back!
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Sign in to continue to ThinkCanvas
-            </p>
-          </div>
-        </div>
-        
-        <div className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm">
+
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Welcome back</h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">Login with email/password or continue with Google.</p>
+
+          {(authFailed || error) && (
+            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error || 'Google login failed. Please try again.'}
+            </div>
+          )}
+
+          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Email</label>
+              <div className="mt-1 flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2">
+                <FiMail className="text-gray-400" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-transparent outline-none text-gray-900 dark:text-white"
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Password</label>
+              <div className="mt-1 flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2">
+                <FiLock className="text-gray-400" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-transparent outline-none text-gray-900 dark:text-white"
+                  placeholder="Enter password"
+                />
+              </div>
+            </div>
+
             <button
-              onClick={googleLogin}
-              className="group relative w-full flex justify-center items-center space-x-3 py-3 px-4 border border-transparent text-lg font-medium rounded-lg text-gray-700 dark:text-white bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transform hover:scale-105 transition duration-200"
+              type="submit"
+              disabled={submitting}
+              className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white py-2.5 font-semibold transition disabled:opacity-60"
             >
-              <FcGoogle className="text-2xl" />
-              <span>Continue with Google</span>
+              {submitting ? 'Signing in...' : 'Sign In'}
             </button>
+          </form>
+
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+            <span className="text-xs uppercase text-gray-400">or</span>
+            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-                Secure authentication powered by Google
-              </span>
-            </div>
-          </div>
+          <button
+            onClick={googleLogin}
+            className="w-full flex justify-center items-center gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-100 py-2.5 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+          >
+            <FcGoogle className="text-xl" /> Continue with Google
+          </button>
 
-          <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-            By signing in, you agree to our{' '}
-            <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-              Privacy Policy
-            </a>
-          </div>
+          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
+            Don&apos;t have an account?{' '}
+            <Link to="/signup" className="font-semibold text-blue-600 hover:text-blue-500">Create one</Link>
+          </p>
         </div>
       </div>
     </div>

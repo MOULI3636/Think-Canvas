@@ -10,23 +10,21 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
 api.interceptors.request.use(
-  (config) => {
-    // You can add auth tokens here if needed
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (config) => config,
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // Redirect to login if unauthorized
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || '';
+    const skipAuthRedirect = Boolean(error.config?.skipAuthRedirect);
+    const isAuthUserCheck = requestUrl.includes('/auth/user');
+    const isAuthPage = ['/login', '/signup'].includes(window.location.pathname);
+
+    if (status === 401 && !skipAuthRedirect && !isAuthUserCheck && !isAuthPage) {
       window.location.href = '/login';
     }
     return Promise.reject(error);

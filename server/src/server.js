@@ -14,7 +14,8 @@ const io = socketIo(server, {
   cors: {
     origin: process.env.CLIENT_URL || 'http://localhost:3000',
     credentials: true
-  }
+  },
+  maxHttpBufferSize: 15 * 1024 * 1024
 });
 
 // Middleware
